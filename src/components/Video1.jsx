@@ -24,7 +24,7 @@ const Video1 = () => {
   useEffect(() => {
     const fetchText = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/give-text`);
+        const response = await fetch(`https://backend-webrtc-video-recorder.onrender.com/api/give-text`);
         if (response.ok) {
           const data = await response.json();
           if (Array.isArray(data) && data.length > 0) {
@@ -150,7 +150,7 @@ const Video1 = () => {
         formData.append("videos", combinedBlob, "video1.mp4");
 
         const uploadResponse = await fetch(
-          `http://localhost:3001/api/upload-videos`,
+          `https://backend-webrtc-video-recorder.onrender.com/api/upload-videos`,
           {
             method: "POST",
             body: formData,
