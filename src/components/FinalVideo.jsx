@@ -6,7 +6,7 @@ const FinalVideo = () => {
   useEffect(() => {
     const fetchFinalVideo = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/api/final-video`);
+        const response = await fetch(`https://backend-webrtc-video-recorder.onrender.com/api/final-video`);
         if (response.ok) {
           const blob = await response.blob();
           const url = URL.createObjectURL(blob);
