@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 const FinalVideo = () => {
   const [finalVideoUrl, setFinalVideoUrl] = useState(null);
 
-  
   useEffect(() => {
     const fetchFinalVideo = async () => {
       try {
@@ -45,9 +44,9 @@ const FinalVideo = () => {
             src={finalVideoUrl}
             controls
             autoPlay
-            loop
+           // loop
             width="600"
-            className="mb-4 border-2 border-gray-300 rounded-lg shadow-md"
+            className="mb-4 border-2 border-gray-300 rounded-lg shadow-md object-cover"
           />
           <button
             onClick={handleDownload}

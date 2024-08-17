@@ -50,12 +50,20 @@ const Video3 = () => {
 
   const handleStart = async () => {
     try {
+      // Stop and clean up previous recording session
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+        mediaRecorder.stream.getTracks().forEach((track) => track.stop());
+      }
+
+      // Clear previous recorded chunks
+      setRecordedChunks([]);
+
       setStartTime(Date.now());
       const stream = await navigator.mediaDevices.getUserMedia({
         video: true,
-        audio: true,
+        audio: { echoCancellation: true, noiseSuppression: true },
       });
-      console.log("stream", stream);
 
       streamRef.current = stream;
       if (videoRef.current) {
@@ -97,6 +105,11 @@ const Video3 = () => {
       setIsRecording(false);
       setIsPaused(true);
       setResumeTime(Date.now());
+
+      // Mute video during pause
+      if (videoRef.current) {
+        videoRef.current.muted = true;
+      }
     }
   };
 
@@ -106,6 +119,11 @@ const Video3 = () => {
       setIsRecording(true);
       setIsPaused(false);
       setStartTime(Date.now() - (resumeTime - startTime));
+
+      // Unmute video during resume
+      if (videoRef.current) {
+        videoRef.current.muted = true;
+      }
     }
   };
 
@@ -155,19 +173,20 @@ const Video3 = () => {
   };
 
   return (
-    <div className="flex flex-col items-center bg-gray-100 min-h-screen p-4">
+    <div className="flex flex-col items-center bg-gray-100 min-h-screen py-4">
       <h1 className="text-3xl font-bold mb-1 text-gray-800">Video Record 3</h1>
       <Timer isActive={isRecording} onComplete={handleStop} />
-      <p className="text-lg mb-4 text-gray-600">
+      <p className="text-lg mb-1 text-gray-600">
         {isRecording ? "Recording" : isPaused ? "Paused" : "Stopped"}
       </p>
-      <div className="relative max-w-lg mb-2 h-[50vh] lg:h-[52vh] w-full">
+      <div className="relative max-w-lg mb-2 h-[60vh] lg:h-[64vh] w-full">
         {showElements && (
           <>
             <video
               ref={videoRef}
               autoPlay
-              className="w-full h-full border-2 border-gray-400 rounded-lg"
+              muted={isRecording || isPaused} // Mute video during recording and pause
+              className="w-full h-full border-2 border-gray-400 rounded-lg object-cover"
               style={{
                 display: isRecording || isPaused ? "block" : "none",
               }}
@@ -179,7 +198,7 @@ const Video3 = () => {
                 )}
                 controls
                 autoPlay
-                className="w-full h-full border-2 border-gray-400 rounded-lg"
+                className="w-full h-full border-2 border-gray-400 rounded-lg object-cover"
               />
             )}
             {isRecording && text && (
@@ -198,7 +217,7 @@ const Video3 = () => {
 
       {uploadStatus && (
         <p
-          className={`text-lg mb-4 ${
+          className={`text-lg mb-1 ${
             uploadStatus.includes("successfully")
               ? "text-green-600"
               : "text-red-600"
@@ -208,7 +227,7 @@ const Video3 = () => {
         </p>
       )}
 
-      <div className="flex flex-wrap gap-4 mb-6 justify-center">
+      <div className="flex flex-wrap lg:gap-3 gap-2 mb-2 justify-center">
         <button
           onClick={handleStart}
           disabled={isRecording}
@@ -216,20 +235,23 @@ const Video3 = () => {
         >
           Start
         </button>
-        <button
-          onClick={handlePause}
-          disabled={!isRecording}
-          className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition disabled:opacity-50"
-        >
-          Pause
-        </button>
-        <button
-          onClick={handleResume}
-          disabled={!isPaused}
-          className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition disabled:opacity-50"
-        >
-          Resume
-        </button>
+        {isRecording ? (
+          <button
+            onClick={handlePause}
+            disabled={!isRecording}
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition disabled:opacity-50"
+          >
+            Pause
+          </button>
+        ) : (
+          <button
+            onClick={handleResume}
+            disabled={!isPaused}
+            className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition disabled:opacity-50"
+          >
+            Resume
+          </button>
+        )}
         <button
           onClick={handleStop}
           disabled={!isRecording && !isPaused}
@@ -247,7 +269,7 @@ const Video3 = () => {
       </div>
       <button
         onClick={() => navigate("/final-video")}
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition  "
+        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
       >
         Next
       </button>
